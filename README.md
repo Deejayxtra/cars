@@ -3,7 +3,7 @@
 
 # Note
 To run program
->>>src:
+>>>frontend/src:
 ```go run .```
 
 To run server

@@ -1,6 +1,6 @@
 const express = require("express");
 const expressStatic = require("express-static");
-const data = require("./data.json");
+const data = require("../data.json");
 
 
 const app = express();

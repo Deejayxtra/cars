@@ -35,3 +35,5 @@ GET /api/categories/{id}
 ```
 
 The `image` property relates to an image for a `carModel`, and can be found in the `/api/images` directory.
+
+

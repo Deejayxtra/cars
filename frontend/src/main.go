@@ -3,22 +3,16 @@ package main
 import (
 	"cars/frontend/src/functions"
 	"fmt"
-	// "frontend/functions"
 	"net/http"
 )
 
 func main() {
 	http.HandleFunc("/", functions.HomeHandler)
 	http.HandleFunc("/cars", functions.CarHandler)
+	http.HandleFunc("/cars/", functions.CarDetailHandler)
 	http.HandleFunc("/filters", functions.AdvancedFiltersHandler)
 	http.HandleFunc("/compare", functions.ComparisonsHandler)
-
-	// Serve static files
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("src/static"))))
-
-	// Start the HTTP server
-
-	port := 8080
-	fmt.Printf("Server is running on port %d\n", port)
-	fmt.Println(http.ListenAndServe(":8080", nil))
+	http.Handle("/src/static/", http.StripPrefix("/src/static/", http.FileServer(http.Dir("frontend/src/static"))))
+	fmt.Println("Server is running on http://localhost:8080")
+	http.ListenAndServe(":8080", nil)
 }

@@ -1,0 +1,27 @@
+<!-- cars/templates/car_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} Details</title>
+    <link rel="stylesheet" href="/src/static/styles.css">
+</head>
+
+<body>
+    <h1>{{.Name}}</h1>
+    <img src="/api/images/{{.Image}}" alt="{{.Name}}" width="300">
+    <p>Manufacturer ID: {{.ManufacturerID}}</p>
+    <p>Category ID: {{.CategoryID}}</p>
+    <p>Year: {{.Year}}</p>
+    <h2>Specifications</h2>
+    <ul>
+        <li>Engine: {{.Specifications.Engine}}</li>
+        <li>Horsepower: {{.Specifications.Horsepower}}</li>
+        <li>Transmission: {{.Specifications.Transmission}}</li>
+        <li>Drivetrain: {{.Specifications.Drivetrain}}</li>
+    </ul>
+</body>
+
+</html>

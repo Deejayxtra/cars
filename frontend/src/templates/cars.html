@@ -1,4 +1,4 @@
-<!-- cars/templates/cars.html -->
+<!-- frontend/src/templates/cars.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +15,8 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Model</th>
+                <th>Image</th>
+                <th>Name</th>
                 <th>Manufacturer</th>
                 <th>Year</th>
             </tr>
@@ -23,10 +24,15 @@
         <tbody>
             {{range .}}
             <tr>
-                <td>{{.ID}}</td>
-                <td>{{.Model}}</td>
-                <td>{{.Manufacturer}}</td>
-                <td>{{.Year}}</td>
+                <td>{{.Car.ID}}</td> <!-- Access ID field from Car struct within CarWithManufacturer -->
+                <td><img src="/api/images/{{.Car.Image}}" alt="{{.Car.Name}}" width="100"></td>
+                <td><a href="/cars/{{.Car.ID}}">{{.Car.Name}}</a></td>
+                <td>{{.ManufacturerName}}</td>
+                <td>{{.Car.Year}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5">No cars available.</td>
             </tr>
             {{end}}
         </tbody>

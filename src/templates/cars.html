@@ -1,0 +1,36 @@
+<!-- cars/templates/cars.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cars</title>
+    <link rel="stylesheet" href="/src/static/styles.css">
+</head>
+
+<body>
+    <h1>Cars</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Model</th>
+                <th>Manufacturer</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Model}}</td>
+                <td>{{.Manufacturer}}</td>
+                <td>{{.Year}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</body>
+
+</html>

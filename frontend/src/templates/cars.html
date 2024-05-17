@@ -25,7 +25,7 @@
             {{range .}}
             <tr>
                 <td>{{.Car.ID}}</td> <!-- Access ID field from Car struct within CarWithManufacturer -->
-                <td><img src="/api/images/{{.Car.Image}}" alt="{{.Car.Name}}" width="100"></td>
+                <td><img src="/static/{{.Car.Image}}" alt="{{.Car.Name}}" width="100"></td>
                 <td><a href="/cars/{{.Car.ID}}">{{.Car.Name}}</a></td>
                 <td>{{.ManufacturerName}}</td>
                 <td>{{.Car.Year}}</td>

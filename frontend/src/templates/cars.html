@@ -7,36 +7,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cars</title>
     <link rel="stylesheet" href="/src/static/styles.css">
+    <style>
+        /* Style for card layout */
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            width: calc(20% - 20px); /* Adjust width for 5 cars in each row */
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Cars</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Manufacturer</th>
-                <th>Year</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{range .}}
-            <tr>
-                <td>{{.Car.ID}}</td> <!-- Access ID field from Car struct within CarWithManufacturer -->
-                <td><img src="/static/{{.Car.Image}}" alt="{{.Car.Name}}" width="100"></td>
-                <td><a href="/cars/{{.Car.ID}}">{{.Car.Name}}</a></td>
-                <td>{{.ManufacturerName}}</td>
-                <td>{{.Car.Year}}</td>
-            </tr>
-            {{else}}
-            <tr>
-                <td colspan="5">No cars available.</td>
-            </tr>
-            {{end}}
-        </tbody>
-    </table>
+    <div class="grid-container">
+        {{range .}}
+        <div class="card">
+            <a href="/cars/{{.Car.ID}}">
+                <img src="/static/{{.Car.Image}}" alt="{{.Car.Name}}">
+                <h3>{{.Car.Name}}</h3>
+                <!-- <p>{{.ManufacturerName}}</p> -->
+                <p>{{.Car.Year}}</p>
+            </a>
+        </div>
+        {{else}}
+        <p>No cars available.</p>
+        {{end}}
+    </div>
 </body>
 
 </html>

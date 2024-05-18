@@ -1,43 +1,83 @@
-<!-- frontend/src/templates/cars.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cars</title>
-    <link rel="stylesheet" href="/src/static/styles.css">
+    <!-- Head content -->
     <style>
+        /* Flex container for header */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px; /* Add some spacing between header and grid */
+        }
+
         /* Style for card layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust card width as needed */
+            grid-gap: 20px; /* Adjust the gap between cards */
+        }
+
         .card {
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
-            margin: 10px;
-            width: calc(20% - 20px); /* Adjust width for 5 cars in each row */
-            display: inline-block;
-            vertical-align: top;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
         }
 
         .card img {
             width: 100%;
-            border-radius: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .card-content {
+            padding: 10px;
+        }
+
+        /* Style for form */
+        form {
+            display: flex;
+            align-items: center;
+        }
+
+        form input[type="text"],
+        form select {
+            margin-right: 10px;
         }
     </style>
 </head>
 
 <body>
-    <h1>Cars</h1>
+    <div class="header-container">
+        <!-- Cars heading -->
+        <h1>Cars</h1>
+        <!-- Search form -->
+        <form action="/cars" method="GET">
+            <input type="text" name="search" placeholder="Search...">
+            <select name="manufacturer">
+                <option value="">All Manufacturers</option>
+                <!-- Add options dynamically using Go template -->
+                {{range .Manufacturers}}
+                <option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+            </select>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
     <div class="grid-container">
-        {{range .}}
+        <!-- Display all cars -->
+        {{range .Cars}}
         <div class="card">
-            <a href="/cars/{{.Car.ID}}">
-                <img src="/static/{{.Car.Image}}" alt="{{.Car.Name}}">
-                <h3>{{.Car.Name}}</h3>
-                <!-- <p>{{.ManufacturerName}}</p> -->
-                <p>{{.Car.Year}}</p>
+            <a href="/cars/{{.ID}}">
+                <img src="/static/{{.Image}}" alt="{{.Name}}">
+                <div class="card-content">
+                    <h3>{{.Name}}</h3>
+                    <p>{{.Year}}</p>
+                </div>
             </a>
         </div>
         {{else}}

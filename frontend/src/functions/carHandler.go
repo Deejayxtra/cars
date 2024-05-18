@@ -63,7 +63,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 // CarHandler handles requests to render the cars template
 func CarHandler(w http.ResponseWriter, r *http.Request) {
-	// Make a request to the Cars API
+	// Make a request to the Cars API to fetch all cars
 	resp, err := http.Get("http://localhost:3000/api/models")
 	if err != nil {
 		fmt.Printf("Failed to fetch car data: %v\n", err)
@@ -79,7 +79,7 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode JSON response
+	// Decode JSON response to get all cars
 	var cars []Car
 	if err := json.NewDecoder(resp.Body).Decode(&cars); err != nil {
 		fmt.Printf("Failed to decode car data: %v\n", err)
@@ -87,24 +87,15 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch manufacturer names for each car
-	var carsWithManufacturer []CarWithManufacturer
-	for _, car := range cars {
-		manufacturerName, err := GetManufacturerName(car.ManufacturerID)
-		if err != nil {
-			fmt.Printf("Failed to fetch manufacturer name for car ID %d: %v\n", car.ID, err)
-			http.Error(w, "Failed to fetch manufacturer name. Please try again later.", http.StatusInternalServerError)
-			return
-		}
-		carsWithManufacturer = append(carsWithManufacturer, CarWithManufacturer{
-			Car:              car,
-			ManufacturerName: manufacturerName,
-		})
+	// Fetch manufacturers for filtering dropdown
+	manufacturers, err := fetchManufacturers()
+	if err != nil {
+		fmt.Printf("Failed to fetch manufacturers: %v\n", err)
+		http.Error(w, "Failed to fetch manufacturers. Please try again later.", http.StatusInternalServerError)
+		return
 	}
 
-	fmt.Printf("Type of data passed to template: %T\n", carsWithManufacturer)
-
-	// Render HTML template with fetched data
+	// Render HTML template with fetched data (all cars and manufacturers)
 	tmpl, err := template.ParseFiles("templates/cars.html")
 	if err != nil {
 		fmt.Printf("Error parsing template: %v\n", err)
@@ -112,12 +103,42 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tmpl.Execute(w, carsWithManufacturer)
+	// Execute the template with all cars and manufacturers data
+	err = tmpl.Execute(w, struct {
+		Cars          []Car
+		Manufacturers []Manufacturer
+	}{
+		Cars:          cars,
+		Manufacturers: manufacturers,
+	})
 	if err != nil {
 		fmt.Printf("Error executing template: %v\n", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+// fetchManufacturers fetches manufacturers data from the API
+func fetchManufacturers() ([]Manufacturer, error) {
+	// Make a request to the Manufacturers API
+	resp, err := http.Get("http://localhost:3000/api/manufacturers")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Check if the API responded with an error status code
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API returned an error: %s", resp.Status)
+	}
+
+	// Decode JSON response
+	var manufacturers []Manufacturer
+	if err := json.NewDecoder(resp.Body).Decode(&manufacturers); err != nil {
+		return nil, err
+	}
+
+	return manufacturers, nil
 }
 
 func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
@@ -155,8 +176,6 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Fetched car details: %+v", car)
-
 	// Fetch manufacturer details
 	manufResp, err := http.Get(fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID))
 	if err != nil {
@@ -186,6 +205,7 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Fetched car details: %+v", car)
 	log.Printf("Fetched manufacturer details: %+v", manufacturer)
 
 	// Combine car and manufacturer details

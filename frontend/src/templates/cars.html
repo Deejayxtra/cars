@@ -4,12 +4,24 @@
 <head>
     <!-- Head content -->
     <style>
+        body {
+            background-color: #f3e5f5; /* Light purple background */
+            color: #000; /* Text color */
+        }
+
         /* Flex container for header */
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px; /* Add some spacing between header and grid */
+        }
+
+        /* Style for header link */
+        .header-container h1 a {
+            text-decoration: none; /* Remove underline */
+            color: black;
+
         }
 
         /* Style for card layout */
@@ -25,6 +37,7 @@
             padding: 10px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+            background-color: #fff; /* White background for cards */
         }
 
         .card img {
@@ -52,8 +65,8 @@
 
 <body>
     <div class="header-container">
-        <!-- Cars heading -->
-        <h1>Cars</h1>
+        <!-- Cars heading with link -->
+        <h1><a href="/cars">Cars</a></h1>
         <!-- Search form -->
         <form action="/cars" method="GET">
             <input type="text" name="search" placeholder="Search...">
@@ -78,7 +91,7 @@
                     <h3>{{.Name}}</h3>
                     <p>{{.Year}}</p>
                 </div>
-            </a>
+            </a>    
         </div>
         {{else}}
         <p>No cars available.</p>

@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 // Define structs to represent the data retrieved from the API
@@ -63,6 +65,10 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 // CarHandler handles requests to render the cars template
 func CarHandler(w http.ResponseWriter, r *http.Request) {
+	// Get query parameters
+	search := r.URL.Query().Get("search")
+	manufacturerID := r.URL.Query().Get("manufacturer")
+
 	// Make a request to the Cars API to fetch all cars
 	resp, err := http.Get("http://localhost:3000/api/models")
 	if err != nil {
@@ -87,6 +93,15 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Filter cars based on search query and manufacturer ID
+	var filteredCars []Car
+	for _, car := range cars {
+		if (search == "" || strings.Contains(strings.ToLower(car.Name), strings.ToLower(search))) &&
+			(manufacturerID == "" || strconv.Itoa(car.ManufacturerID) == manufacturerID) {
+			filteredCars = append(filteredCars, car)
+		}
+	}
+
 	// Fetch manufacturers for filtering dropdown
 	manufacturers, err := fetchManufacturers()
 	if err != nil {
@@ -95,7 +110,7 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Render HTML template with fetched data (all cars and manufacturers)
+	// Render HTML template with fetched data (filtered cars and manufacturers)
 	tmpl, err := template.ParseFiles("templates/cars.html")
 	if err != nil {
 		fmt.Printf("Error parsing template: %v\n", err)
@@ -103,12 +118,12 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Execute the template with all cars and manufacturers data
+	// Execute the template with filtered cars and manufacturers data
 	err = tmpl.Execute(w, struct {
 		Cars          []Car
 		Manufacturers []Manufacturer
 	}{
-		Cars:          cars,
+		Cars:          filteredCars,
 		Manufacturers: manufacturers,
 	})
 	if err != nil {

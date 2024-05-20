@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="/frontend/src/static/styles.css">
+    <!-- <link rel="stylesheet" href="/frontend/src/static/styles.css"> -->
     <style>
         body {
             background-color: #f3e5f5; /* Light purple background */
@@ -24,6 +24,11 @@
             align-items: center;
         }
 
+        a {
+            text-decoration: none;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 
@@ -31,7 +36,12 @@
     <section>
         <div class="home">
             <h1>Welcome to the Car Viewer</h1>
-            <p><a href="/cars">View Cars</a><img src="cars/frontend/src/frontendImg/car-reviews.jpg" alt="car banner" height="150px" /></p>
+            <p>
+                <a href="/cars" class="carpix">
+                    View Cars
+                    <img src="cars/api/src/img/car-reviews.jpg" alt="cars" height="150px" />
+                </a>
+            </p>
         </div>
     </section>
     

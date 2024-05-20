@@ -6,7 +6,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Car.Name}} Details</title>
-    <link rel="stylesheet" href="/src/static/styles.css">
+    <!-- <link rel="stylesheet" href="/src/static/styles.css"> -->
+    <style>
+        body {
+            background-color: #f3e5f5; /* Light purple background */
+            color: #000; /* Text color */
+        }
+
+        /* General styles for the image */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Optional: You can define a specific height to ensure the image fits a certain space */
+        .img-container {
+            max-width: 800px; /* Adjust the maximum width as needed */
+            margin: 0 auto;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            margin-top: 50px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            font-size: 16px;
+            max-width: 300px;  /* Adjust this value as needed */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        p {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            max-width: 300px;  /* Adjust this value as needed */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+    
+
+    </style>
 </head>
 
 <body>
@@ -24,6 +94,11 @@
         <li>Transmission: {{.Car.Specifications.Transmission}}</li>
         <li>Drivetrain: {{.Car.Specifications.Drivetrain}}</li>
     </ul>
+    <br>
+    <div class="cars">
+        <a href="/cars">Cars</a>
+    </div>
+    
 </body>
 
 </html>

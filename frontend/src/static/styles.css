@@ -1,4 +1,9 @@
 /* static/styles.css */
+
+.home {
+    background-color: #e710108b;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

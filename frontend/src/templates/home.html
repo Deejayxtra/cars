@@ -6,14 +6,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="/src/static/styles.css">
+    <link rel="stylesheet" href="/frontend/src/static/styles.css">
+    <style>
+        body {
+            background-color: #f3e5f5; /* Light purple background */
+            color: #000; /* Text color */
+        }
+        h1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        p {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+    </style>
 </head>
 
 <body>
-    <h1>Welcome to the Car Viewer</h1>
-    <p><a href="/cars">View Cars</a></p>
-    <p><a href="/filters">Advanced Filters</a></p>
-    <p><a href="/compare">Comparisons</a></p>
+    <section>
+        <div class="home">
+            <h1>Welcome to the Car Viewer</h1>
+            <p><a href="/cars">View Cars</a><img src="cars/frontend/src/frontendImg/car-reviews.jpg" alt="car banner" height="150px" /></p>
+        </div>
+    </section>
+    
 </body>
 
 </html>

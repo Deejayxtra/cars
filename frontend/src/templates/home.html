@@ -1,4 +1,3 @@
-<!-- src/templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,18 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <!-- <link rel="stylesheet" href="/frontend/src/static/styles.css"> -->
     <style>
         body {
             background-color: #f3e5f5; /* Light purple background */
             color: #000; /* Text color */
         }
-        h1 {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
 
+        h1,
         p {
             display: flex;
             justify-content: center;
@@ -28,7 +22,6 @@
             text-decoration: none;
             font-weight: bold;
         }
-
     </style>
 </head>
 
@@ -36,15 +29,15 @@
     <section>
         <div class="home">
             <h1>Welcome to the Car Viewer</h1>
+            <!-- Use a direct link to the image -->
+            <!-- <img src="https://images.app.goo.gl/Nk6e9e9uodY3f1nJ6" alt="cars" height="150px" /> -->
             <p>
                 <a href="/cars" class="carpix">
-                    View Cars
-                    <img src="cars/api/src/img/car-reviews.jpg" alt="cars" height="150px" />
-                </a>
+                    View Cars 
+                </a> <br>
             </p>
         </div>
     </section>
-    
 </body>
 
 </html>

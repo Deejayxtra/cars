@@ -1,15 +1,14 @@
 const express = require("express");
+const cors = require("cors"); // Add this line
 const expressStatic = require("express-static");
 const data = require("../data.json");
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 // Middleware to parse JSON requests
 app.use(express.json());
-
+app.use(cors()); // Enable CORS
 
 app.get("/api", (req, res) => {
   res.json({
@@ -19,15 +18,13 @@ app.get("/api", (req, res) => {
   });
 });
 
-
 // Static files (Used to serve images)
+// app.use("/api/images", express.static("img"));
 app.use("/api/images", expressStatic("img"));
 
-
-const carModels = data.carModels
-, categories = data.categories
-, manufacturers = data.manufacturers;
-
+const carModels = data.carModels,
+  categories = data.categories,
+  manufacturers = data.manufacturers;
 
 // Car Models Handler
 app.get("/api/models", (req, res) => {
@@ -45,7 +42,6 @@ app.get("/api/models/:id", (req, res) => {
   res.json(model);
 });
 
-
 // Categories Handler
 app.get("/api/categories", (req, res) => {
   res.json(categories);
@@ -61,7 +57,6 @@ app.get("/api/categories/:id", (req, res) => {
 
   res.json(category);
 });
-
 
 // Manufacturers Handler
 app.get("/api/manufacturers", (req, res) => {
@@ -80,7 +75,6 @@ app.get("/api/manufacturers/:id", (req, res) => {
 
   res.json(manufacturer);
 });
-
 
 // Serve
 app.listen(PORT, () => {

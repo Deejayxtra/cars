@@ -235,7 +235,7 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		Car:          car,
 		Manufacturer: manufacturer,
 	}
-	
+
 	// Parse the template
 	tmplPath := filepath.Join("templates", "carDetail.html")
 	tmpl, err := template.ParseFiles(tmplPath)

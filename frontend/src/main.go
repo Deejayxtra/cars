@@ -18,6 +18,6 @@ func main() {
 	http.HandleFunc("/filters", functions.AdvancedFiltersHandler)
 	http.HandleFunc("/compare", functions.ComparisonsHandler)
 
-	fmt.Println("Server is running on http://localhost:8080")
+	fmt.Println("Server started at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

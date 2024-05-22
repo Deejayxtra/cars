@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Car.Name}} Details</title>
-    <!-- <link rel="stylesheet" href="/src/static/styles.css"> -->
+    <link rel="stylesheet" href="/src/static/styles.css">
     <style>
         body {
             background-color: #f3e5f5; /* Light purple background */
@@ -81,7 +81,7 @@
 
 <body>
     <h1>{{.Car.Name}}</h1>
-    <img src="/static/{{.Car.Image}}" alt="{{.Car.Name}}" width="300">
+    <img src="/static/homePageImg/{{.Car.Image}}" alt="{{.Car.Name}}" width="300">
     <p>Manufacturer: {{.Manufacturer.Name}}</p>
     <p>Country: {{.Manufacturer.Country}}</p>
     <p>Founding Year: {{.Manufacturer.FoundingYear}}</p>

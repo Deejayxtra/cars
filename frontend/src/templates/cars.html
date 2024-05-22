@@ -3,6 +3,7 @@
 
 <head>
     <!-- Head content -->
+    <link rel="stylesheet" href="/src/static/styles.css">
     <style>
         body {
             background-color: #f3e5f5; /* Light purple background */
@@ -97,10 +98,10 @@
         {{range .Cars}}
         <div class="card">
             <a href="/cars/{{.ID}}">
-                <img src="/static/{{.Image}}" alt="{{.Name}}">
+                <img src="/static/homePageImg/{{.Image}}" alt="{{.Name}}">
                 <div class="card-content">
                     <h3>{{.Name}}</h3>
-                    <p>{{.Year}}</p>
+                    <p>{{.Year}}</p><p>{{.Image}}</p>
                 </div>
             </a>    
         </div>

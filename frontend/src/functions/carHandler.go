@@ -163,7 +163,10 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Fetching details for car ID: %s", carID)
 
 	// Fetch car details
-	carResp, err := http.Get(fmt.Sprintf("http://localhost:3000/api/models/%s", carID))
+	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
+	log.Printf("Requesting Car API URL: %s", carAPIURL)
+
+	carResp, err := http.Get(carAPIURL)
 	if err != nil {
 		log.Printf("Error fetching car details: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -173,7 +176,7 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	if carResp.StatusCode != http.StatusOK {
 		log.Printf("Car API returned non-OK status: %s", carResp.Status)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Car API returned non-OK status: %s", carResp.Status), carResp.StatusCode)
 		return
 	}
 
@@ -192,7 +195,11 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch manufacturer details
-	manufResp, err := http.Get(fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID))
+	manufAPIURL := fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID)
+	log.Printf("Requesting Manufacturer API URL: %s", manufAPIURL)
+
+	manufResp, err := http.Get(manufAPIURL)
+
 	if err != nil {
 		log.Printf("Error fetching manufacturer details: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -228,7 +235,7 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		Car:          car,
 		Manufacturer: manufacturer,
 	}
-
+	
 	// Parse the template
 	tmplPath := filepath.Join("templates", "carDetail.html")
 	tmpl, err := template.ParseFiles(tmplPath)

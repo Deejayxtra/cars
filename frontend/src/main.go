@@ -36,14 +36,11 @@ import (
 
 func main() {
 	// Serve static files for frontend
-	http.Handle("/src/static/", http.StripPrefix("/src/static/", http.FileServer(http.Dir("frontend/src/static"))))
+	// http.Handle("/cars/frontend/src/static/homePageImg/", http.StripPrefix("/cars/frontend/src/static/homePageImg/", http.FileServer(http.Dir("cars/frontend/src/static/homePageImg"))))
 
 	// Serve static files for images
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../../../cars/api/src/img"))))
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/src/homePageImg"))))
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/src/static"))))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/src/static/homePageImg"))))
-
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	
 	// Handle other routes
 	http.HandleFunc("/", functions.HomeHandler)
 	http.HandleFunc("/cars", functions.CarHandler)

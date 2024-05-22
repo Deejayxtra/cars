@@ -5,22 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="/src/static/styles.css">
     <style>
-        body {
-            background-color: #f3e5f5; /* Light purple background */
+       body {
+            background-color: #e1dfe2; /* Light purple background */
             color: #000; /* Text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
         }
 
         h1,
         p {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0.5em 0;
         }
 
         a {
             text-decoration: none;
             font-weight: bold;
+            color: #6200ea; /* Dark purple color for links */
+        }
+
+        a:hover {
+            color: #3700b3; /* Darker purple color on hover */
+        }
+
+        .container {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -30,10 +50,10 @@
         <div class="home">
             <h1>Welcome to the Car Viewer</h1>
             <!-- Use a direct link to the image -->
-            <!-- <img src="https://images.app.goo.gl/Nk6e9e9uodY3f1nJ6" alt="cars" height="150px" /> -->
+            
             <p>
                 <a href="/cars" class="carpix">
-                    View Cars 
+                <img src="/static/homePageImg/car-reviews.jpg" alt="cars" />
                 </a> <br>
             </p>
         </div>

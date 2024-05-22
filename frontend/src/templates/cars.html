@@ -5,9 +5,13 @@
     <!-- Head content -->
     <link rel="stylesheet" href="/src/static/styles.css">
     <style>
-        body {
+       body {
             background-color: #e1dfe2; /* Light purple background */
             color: #000; /* Text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         /* Flex container for header */
@@ -22,7 +26,6 @@
         .header-container h1 a {
             text-decoration: none; /* Remove underline */
             color: black;
-
         }
 
         /* Style for card layout */
@@ -55,14 +58,33 @@
         form {
             display: flex;
             align-items: center;
+            margin-bottom: 20px;
         }
 
         form input[type="text"],
         form select {
             margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
+
+        form button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            background-color:#6a676e;
+            color: white;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #3700b3;
+        }
+
         a {
             text-decoration: none;
+            color: #07050a;
         }
 
         .home {

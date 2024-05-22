@@ -8,9 +8,112 @@
     <title>{{.Car.Name}} Details</title>
     <link rel="stylesheet" href="/src/static/styles.css">
     <style>
-        body {
-            background-color:#e1dfe2; /* Light purple background */
+       body {
+            background-color: #e1dfe2; /* Light purple background */
             color: #000; /* Text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Flex container for header */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px; /* Add some spacing between header and grid */
+        }
+
+        /* Style for header link */
+        .header-container h1 a {
+            text-decoration: none; /* Remove underline */
+            color: black;
+        }
+
+        /* Style for card layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust card width as needed */
+            grid-gap: 10px; /* Reduce the gap between cards */
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+            background-color: #fff; /* White background for cards */
+        }
+
+        .card img {
+            width: 100%;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .card-content {
+            padding: 10px;
+        }
+
+        /* Style for form */
+        form {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        form input[type="text"],
+        form select {
+            margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        form button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            background-color: #6200ea;
+            color: white;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #3700b3;
+        }
+
+        a {
+            text-decoration: none;
+            color: #07050a;
+        }
+
+        .home {
+            margin-top: 50px;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+        }
+
+        /* Additional styling for p and ul li to reduce margins */
+        p, ul li {
+            background-color: #f9f9f9;
+            margin: 5px 0; /* Reduced margin */
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            max-width: 300px;  /* Adjust this value as needed */
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
         }
 
         /* General styles for the image */
@@ -26,56 +129,22 @@
         /* Optional: You can define a specific height to ensure the image fits a certain space */
         .img-container {
             max-width: 800px; /* Adjust the maximum width as needed */
-            margin: 0 auto;
+            margin: 20px auto;
             overflow: hidden;
             text-align: center;
-        }
-
-        a {
-            text-decoration: none;
-            align-items: center;
-            justify-content: center;
-            display: flex;
         }
 
         h2 {
             color: #333;
             margin-bottom: 20px;
             margin-top: 50px;
+            text-align: center;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
         }
-
-        ul li {
-            background-color: #f9f9f9;
-            margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-            font-size: 16px;
-            max-width: 300px;  /* Adjust this value as needed */
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        p {
-            background-color: #f9f9f9;
-            margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-            max-width: 300px;  /* Adjust this value as needed */
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-    
-
     </style>
 </head>
 

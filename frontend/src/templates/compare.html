@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare Cars</title>
+    <style>
+        /* Add some basic styling for better appearance */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .car-comparison {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .car-comparison > div {
+            flex: 1;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Compare Cars</h1>
+    <div class="car-comparison">
+        {{range .Cars}}
+        <div>
+            <h2>{{.Name}}</h2>
+            <p><strong>Year:</strong> {{.Year}}</p>
+            <p><strong>Manufacturer:</strong> {{.ManufacturerID}}</p>
+            <p><strong>Engine:</strong> {{.Specifications.Engine}}</p>
+            <p><strong>Horsepower:</strong> {{.Specifications.Horsepower}}</p>
+            <p><strong>Transmission:</strong> {{.Specifications.Transmission}}</p>
+            <p><strong>Drivetrain:</strong> {{.Specifications.Drivetrain}}</p>
+            <img src="/static/homePageImg/{{.Image}}" alt="{{.Name}}" width="200">
+        </div>
+        {{end}}
+    </div>
+</body>
+</html>

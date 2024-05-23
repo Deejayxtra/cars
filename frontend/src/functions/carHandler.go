@@ -16,8 +16,7 @@ var templates = template.Must(template.ParseFiles(
 	"templates/contact.html",
 	"templates/cars.html",
 	"templates/carDetail.html",
-	// "templates/filters.html",
-	// "templates/compare.html",
+	"templates/compare.html", // Added compare.html
 ))
 
 // Define structs to represent the data retrieved from the API
@@ -137,6 +136,83 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ComparisonsHandler handles the comparison of cars
+func ComparisonsHandler(w http.ResponseWriter, r *http.Request) {
+	carIDs := r.URL.Query()["ids"] // Assume car IDs are passed as query parameters like /compare?ids=1,2,3
+	if len(carIDs) == 0 {
+		http.Error(w, "No car IDs provided for comparison", http.StatusBadRequest)
+		return
+	}
+
+	carChan := make(chan []Car)
+	errChan := make(chan error)
+
+	go fetchCarsByIdsAsync(carIDs, carChan, errChan)
+
+	var cars []Car
+	select {
+	case fetchedCars := <-carChan:
+		cars = fetchedCars
+	case err := <-errChan:
+		log.Printf("Error occurred: %v", err)
+		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+		return
+	}
+
+	// Render compare.html template with fetched car details
+	tmplPath := filepath.Join("templates", "compare.html")
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		log.Printf("Error parsing template %s: %v", tmplPath, err)
+		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+		return
+	}
+
+	// Create a struct to pass to the template
+	data := struct {
+		Cars []Car
+	}{
+		Cars: cars,
+	}
+
+	// Execute the template with the structured data
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template %s: %v", tmplPath, err)
+		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+	}
+}
+
+// fetchCarsByIdsAsync fetches car data asynchronously by car IDs
+func fetchCarsByIdsAsync(carIDs []string, carChan chan []Car, errChan chan error) {
+	var cars []Car
+
+	for _, id := range carIDs {
+		carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", id)
+		resp, err := http.Get(carAPIURL)
+		if err != nil {
+			errChan <- fmt.Errorf("failed to fetch car details for ID %s: %v", id, err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			errChan <- fmt.Errorf("Car API returned an error for ID %s: %s", id, resp.Status)
+			return
+		}
+
+		var car Car
+		if err := json.NewDecoder(resp.Body).Decode(&car); err != nil {
+			errChan <- fmt.Errorf("failed to decode car details for ID %s: %v", id, err)
+			return
+		}
+
+		cars = append(cars, car)
+	}
+
+	carChan <- cars
+}
+
 // fetchCarsAsync fetches car data asynchronously
 func fetchCarsAsync(carChan chan []Car, errChan chan error) {
 	resp, err := http.Get("http://localhost:3000/api/models")
@@ -183,6 +259,18 @@ func fetchManufacturersAsync(manufChan chan []Manufacturer, errChan chan error) 
 	manufChan <- manufacturers
 }
 
+func AdvancedFiltersHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/filters.html"))
+	tmpl.Execute(w, nil)
+}
+
+// contactHandler serves the contact form page
+func ContactHandler(w http.ResponseWriter, r *http.Request) {
+	if err := templates.ExecuteTemplate(w, "contact.html", nil); err != nil {
+		http.Error(w, "Unable to load template", http.StatusInternalServerError)
+	}
+}
+
 func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 	carID := r.URL.Path[len("/cars/"):]
 	carChan := make(chan Car)
@@ -209,26 +297,30 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Render HTML template with fetched car details
+	tmpl, err := template.ParseFiles("templates/carDetail.html")
+	if err != nil {
+		log.Printf("Error parsing template: %v\n", err)
+		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+		return
+	}
+
+	// Create CarDetail struct to pass to the template
 	carDetail := CarDetail{
 		Car:          car,
 		Manufacturer: manufacturer,
 	}
 
-	tmplPath := filepath.Join("templates", "carDetail.html")
-	tmpl, err := template.ParseFiles(tmplPath)
+	// Execute the template with the car details
+	err = tmpl.Execute(w, carDetail)
 	if err != nil {
-		log.Printf("Error parsing template %s: %v", tmplPath, err)
+		log.Printf("Error executing template: %v\n", err)
 		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
 		return
 	}
-
-	if err := tmpl.Execute(w, carDetail); err != nil {
-		log.Printf("Error executing template %s: %v", tmplPath, err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-	}
 }
 
-// fetchCarDetailAsync fetches car detail asynchronously
+// fetchCarDetailAsync fetches car detail data asynchronously
 func fetchCarDetailAsync(carID string, carChan chan Car, errChan chan error) {
 	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
 	resp, err := http.Get(carAPIURL)
@@ -252,29 +344,31 @@ func fetchCarDetailAsync(carID string, carChan chan Car, errChan chan error) {
 	carChan <- car
 }
 
-// fetchManufacturerDetailAsync fetches manufacturer detail asynchronously
+// fetchManufacturerDetailAsync fetches manufacturer detail data asynchronously
 func fetchManufacturerDetailAsync(carID string, manufChan chan Manufacturer, errChan chan error) {
+	// Fetch car details first to get manufacturer ID
 	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
-	carResp, err := http.Get(carAPIURL)
+	resp, err := http.Get(carAPIURL)
 	if err != nil {
-		errChan <- fmt.Errorf("failed to fetch car details: %v", err)
+		errChan <- fmt.Errorf("failed to fetch car details for manufacturer: %v", err)
 		return
 	}
-	defer carResp.Body.Close()
+	defer resp.Body.Close()
 
-	if carResp.StatusCode != http.StatusOK {
-		errChan <- fmt.Errorf("Car API returned an error: %s", carResp.Status)
+	if resp.StatusCode != http.StatusOK {
+		errChan <- fmt.Errorf("Car API returned an error for manufacturer: %s", resp.Status)
 		return
 	}
 
 	var car Car
-	if err := json.NewDecoder(carResp.Body).Decode(&car); err != nil {
-		errChan <- fmt.Errorf("failed to decode car details: %v", err)
+	if err := json.NewDecoder(resp.Body).Decode(&car); err != nil {
+		errChan <- fmt.Errorf("failed to decode car details for manufacturer: %v", err)
 		return
 	}
 
+	// Fetch manufacturer details
 	manufAPIURL := fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID)
-	resp, err := http.Get(manufAPIURL)
+	resp, err = http.Get(manufAPIURL)
 	if err != nil {
 		errChan <- fmt.Errorf("failed to fetch manufacturer details: %v", err)
 		return
@@ -295,66 +389,28 @@ func fetchManufacturerDetailAsync(carID string, manufChan chan Manufacturer, err
 	manufChan <- manufacturer
 }
 
-func AdvancedFiltersHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/filters.html"))
-	tmpl.Execute(w, nil)
-}
-
-func ComparisonsHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/compare.html"))
-	tmpl.Execute(w, nil)
-}
-
-func GetManufacturerName(manufacturerID int) (string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", manufacturerID))
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("API returned an error: %s", resp.Status)
-	}
-
-	var manufacturer struct {
-		Name string `json:"name"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&manufacturer); err != nil {
-		return "", err
-	}
-
-	return manufacturer.Name, nil
-}
-
-// contactHandler serves the contact form page
-func ContactHandler(w http.ResponseWriter, r *http.Request) {
-	if err := templates.ExecuteTemplate(w, "contact.html", nil); err != nil {
-		http.Error(w, "Unable to load template", http.StatusInternalServerError)
-	}
-}
-
 // submitContactHandler handles the form submission
 func SubmitContactHandler(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodPost {
-        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-        return
-    }
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
-    name := r.FormValue("name")
-    email := r.FormValue("email")
-    message := r.FormValue("message")
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	message := r.FormValue("message")
 
-    // Handle the form submission (e.g., send an email, save to a database, etc.)
-    log.Printf("Received contact form submission: Name: %s, Email: %s, Message: %s", name, email, message)
+	// Handle the form submission (e.g., send an email, save to a database, etc.)
+	log.Printf("Received contact form submission: Name: %s, Email: %s, Message: %s", name, email, message)
 
-    // Pass the confirmation message to the template
-    data := struct {
-        Message string
-    }{
-        Message: "Thank you for your message. We will get back to you shortly.",
-    }
+	// Pass the confirmation message to the template
+	data := struct {
+		Message string
+	}{
+		Message: "Thank you for your message. We will get back to you shortly.",
+	}
 
-    if err := templates.ExecuteTemplate(w, "contact.html", data); err != nil {
-        http.Error(w, "Unable to load template", http.StatusInternalServerError)
-    }
+	if err := templates.ExecuteTemplate(w, "contact.html", data); err != nil {
+		http.Error(w, "Unable to load template", http.StatusInternalServerError)
+	}
 }

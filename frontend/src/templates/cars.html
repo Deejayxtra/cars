@@ -94,6 +94,10 @@
             display: flex;
         }
 
+        .compare-checkbox {
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 
@@ -115,30 +119,33 @@
         </form>
     </div>
 
-    <div class="grid-container">
-        <!-- Display all cars -->
-        {{range .Cars}}
-        <div class="card">
-            <a href="/cars/{{.ID}}">
-                <img src="/static/homePageImg/{{.Image}}" alt="{{.Name}}">
-                <div class="card-content">
-                    <h3>{{.Name}}</h3>
-                    <p>{{.Year}}</p>
-                </div>
-            </a>    
+    <form id="compareForm" action="/compare" method="GET">
+        <div class="grid-container">
+            <!-- Display all cars -->
+            {{range .Cars}}
+            <div class="card">
+                <a href="/cars/{{.ID}}">
+                    <img src="/static/homePageImg/{{.Image}}" alt="{{.Name}}">
+                    <div class="card-content">
+                        <h3>{{.Name}}</h3>
+                        <p>{{.Year}}</p>
+                        <!-- Add checkbox for comparison -->
+                        <input type="checkbox" class="compare-checkbox" name="ids" value="{{.ID}}">
+                    </div>
+                </a>
+            </div>
+            {{else}}
+            <p>No cars available.</p>
+            {{end}}
         </div>
-        {{else}}
-        <p>No cars available.</p>
-        {{end}}
-    </div>
+        <!-- Button to submit selected cars for comparison -->
+        <button type="submit">Compare Selected Cars</button>
+    </form>
 
     <br>
     <div class="home">
-            <a href="http://localhost:8080/">Return to Home page</a>
+        <a href="http://localhost:8080/">Return to Home page</a>
     </div>
-    
-   
-
 </body>
 
 </html>

@@ -7,17 +7,19 @@
     <title>Home</title>
     <link rel="stylesheet" href="/src/static/styles.css">
     <style>
-       body {
-            background-color: #e1dfe2; /* Light purple background */
-            color: #000; /* Text color */
+        body {
+            background-color: #e1dfe2;
+            /* Light purple background */
+            color: #000;
+            /* Text color */
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             text-align: center;
         }
 
@@ -29,35 +31,93 @@
         a {
             text-decoration: none;
             font-weight: bold;
-            color: #6200ea; /* Dark purple color for links */
+            color: #000;
+            /* Dark purple color for links */
         }
 
         a:hover {
-            color: #3700b3; /* Darker purple color on hover */
+            color: #3700b3;
+            /* Darker purple color on hover */
         }
 
-        .container {
-            padding: 20px;
+
+
+        .home {
+
+            margin-top: 100px;
+        }
+
+        .home img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
             border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        footer {
+            padding: 10px;
             background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #ccc;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact,
+        .social-media {
+            display: flex;
+            align-items: center;
+        }
+
+        .contact a,
+        .social-media a {
+            margin: 0 10px;
+        }
+
+        .social-media img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .social-media img:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
 
 <body>
-    <section>
+    <section class="container">
         <div class="home">
             <h1>Welcome to the Car Viewer</h1>
-            <!-- Use a direct link to the image -->
-            
             <p>
                 <a href="/cars" class="carpix">
-                <img src="/static/homePageImg/car-reviews.jpg" alt="cars" />
-                </a> <br>
+                    <img src="/static/homePageImg/car-reviews.jpg" alt="cars" />
+                </a>
             </p>
         </div>
     </section>
+
+    <footer>
+        <div class="contact">
+            <a href="/contact" class="contact">Contact Us</a>
+        </div>
+        <div class="social-media">
+            <a href="https://www.facebook.com" class="fb">
+                <img src="/static/img/Facebook.png" alt="Facebook" />
+            </a>
+            <a href="https://www.instagram.com" class="insta">
+                <img src="/static/img/instagram.jpeg" alt="Instagram" />
+            </a>
+            <a href="https://www.x.com" class="x">
+                <img src="/static/img/twitter-x-logo.webp" alt="X (formerly Twitter)" />
+            </a>
+        </div>
+    </footer>
 </body>
 
 </html>
+

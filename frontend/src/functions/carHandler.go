@@ -11,6 +11,15 @@ import (
 	"strings"
 )
 
+var templates = template.Must(template.ParseFiles(
+	"templates/home.html",
+	"templates/contact.html",
+	"templates/cars.html",
+	"templates/carDetail.html",
+	// "templates/filters.html",
+	// "templates/compare.html",
+))
+
 // Define structs to represent the data retrieved from the API
 type Specifications struct {
 	Engine       string `json:"engine"`
@@ -315,4 +324,37 @@ func GetManufacturerName(manufacturerID int) (string, error) {
 	}
 
 	return manufacturer.Name, nil
+}
+
+// contactHandler serves the contact form page
+func ContactHandler(w http.ResponseWriter, r *http.Request) {
+	if err := templates.ExecuteTemplate(w, "contact.html", nil); err != nil {
+		http.Error(w, "Unable to load template", http.StatusInternalServerError)
+	}
+}
+
+// submitContactHandler handles the form submission
+func SubmitContactHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    name := r.FormValue("name")
+    email := r.FormValue("email")
+    message := r.FormValue("message")
+
+    // Handle the form submission (e.g., send an email, save to a database, etc.)
+    log.Printf("Received contact form submission: Name: %s, Email: %s, Message: %s", name, email, message)
+
+    // Pass the confirmation message to the template
+    data := struct {
+        Message string
+    }{
+        Message: "Thank you for your message. We will get back to you shortly.",
+    }
+
+    if err := templates.ExecuteTemplate(w, "contact.html", data); err != nil {
+        http.Error(w, "Unable to load template", http.StatusInternalServerError)
+    }
 }

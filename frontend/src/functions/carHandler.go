@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -65,32 +64,36 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 // CarHandler handles requests to render the cars template
 func CarHandler(w http.ResponseWriter, r *http.Request) {
+	// Define channels for data and error handling
+	carChan := make(chan []Car)
+	manufChan := make(chan []Manufacturer)
+	errChan := make(chan error)
+
 	// Get query parameters
 	search := r.URL.Query().Get("search")
 	manufacturerID := r.URL.Query().Get("manufacturer")
 
-	// Make a request to the Cars API to fetch all cars
-	resp, err := http.Get("http://localhost:3000/api/models")
-	if err != nil {
-		log.Printf("Failed to fetch car data: %v\n", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
+	// Fetch car data asynchronously
+	go fetchCarsAsync(carChan, errChan)
 
-	// Check if the API responded with an error status code
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("API returned an error: %s\n", resp.Status)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
+	// Fetch manufacturers data asynchronously
+	go fetchManufacturersAsync(manufChan, errChan)
 
-	// Decode JSON response to get all cars
+	// Wait for the data or error from channels
 	var cars []Car
-	if err := json.NewDecoder(resp.Body).Decode(&cars); err != nil {
-		log.Printf("Failed to decode car data: %v\n", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
+	var manufacturers []Manufacturer
+
+	for i := 0; i < 2; i++ {
+		select {
+		case fetchedCars := <-carChan:
+			cars = fetchedCars
+		case fetchedManufacturers := <-manufChan:
+			manufacturers = fetchedManufacturers
+		case err := <-errChan:
+			log.Printf("Error occurred: %v", err)
+			http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Filter cars based on search query and manufacturer ID
@@ -100,14 +103,6 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 			(manufacturerID == "" || strconv.Itoa(car.ManufacturerID) == manufacturerID) {
 			filteredCars = append(filteredCars, car)
 		}
-	}
-
-	// Fetch manufacturers for filtering dropdown
-	manufacturers, err := fetchManufacturers()
-	if err != nil {
-		log.Printf("Failed to fetch manufacturers: %v\n", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
 	}
 
 	// Render HTML template with fetched data (filtered cars and manufacturers)
@@ -133,112 +128,83 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// fetchManufacturers fetches manufacturers data from the API
-func fetchManufacturers() ([]Manufacturer, error) {
-	// Make a request to the Manufacturers API
-	resp, err := http.Get("http://localhost:3000/api/manufacturers")
+// fetchCarsAsync fetches car data asynchronously
+func fetchCarsAsync(carChan chan []Car, errChan chan error) {
+	resp, err := http.Get("http://localhost:3000/api/models")
 	if err != nil {
-		log.Printf("Error fetching manufacturers: %v", err)
-		return nil, fmt.Errorf("Sorry, something went wrong on our end. Please try again later.")
+		errChan <- fmt.Errorf("failed to fetch car data: %v", err)
+		return
 	}
 	defer resp.Body.Close()
 
-	// Check if the API responded with an error status code
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Manufacturer API returned non-OK status: %s", resp.Status)
-		return nil, fmt.Errorf("Sorry, something went wrong on our end. Please try again later.")
+		errChan <- fmt.Errorf("API returned an error: %s", resp.Status)
+		return
 	}
 
-	// Decode JSON response
+	var cars []Car
+	if err := json.NewDecoder(resp.Body).Decode(&cars); err != nil {
+		errChan <- fmt.Errorf("failed to decode car data: %v", err)
+		return
+	}
+
+	carChan <- cars
+}
+
+// fetchManufacturersAsync fetches manufacturer data asynchronously
+func fetchManufacturersAsync(manufChan chan []Manufacturer, errChan chan error) {
+	resp, err := http.Get("http://localhost:3000/api/manufacturers")
+	if err != nil {
+		errChan <- fmt.Errorf("failed to fetch manufacturers: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errChan <- fmt.Errorf("Manufacturer API returned an error: %s", resp.Status)
+		return
+	}
+
 	var manufacturers []Manufacturer
 	if err := json.NewDecoder(resp.Body).Decode(&manufacturers); err != nil {
-		log.Printf("Error decoding manufacturers data: %v", err)
-		return nil, fmt.Errorf("Sorry, something went wrong on our end. Please try again later.")
+		errChan <- fmt.Errorf("failed to decode manufacturers data: %v", err)
+		return
 	}
 
-	return manufacturers, nil
+	manufChan <- manufacturers
 }
 
 func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract the car ID from the URL path
 	carID := r.URL.Path[len("/cars/"):]
+	carChan := make(chan Car)
+	manufChan := make(chan Manufacturer)
+	errChan := make(chan error)
 
-	log.Printf("Fetching details for car ID: %s", carID)
-
-	// Fetch car details
-	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
-	log.Printf("Requesting Car API URL: %s", carAPIURL)
-
-	carResp, err := http.Get(carAPIURL)
-	if err != nil {
-		log.Printf("Error fetching car details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-	defer carResp.Body.Close()
-
-	if carResp.StatusCode != http.StatusOK {
-		log.Printf("Car API returned non-OK status: %s", carResp.Status)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", carResp.StatusCode)
-		return
-	}
-
-	carData, err := ioutil.ReadAll(carResp.Body)
-	if err != nil {
-		log.Printf("Error reading car details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
+	// Fetch car and manufacturer details asynchronously
+	go fetchCarDetailAsync(carID, carChan, errChan)
+	go fetchManufacturerDetailAsync(carID, manufChan, errChan)
 
 	var car Car
-	if err := json.Unmarshal(carData, &car); err != nil {
-		log.Printf("Error unmarshaling car details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-
-	// Fetch manufacturer details
-	manufAPIURL := fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID)
-	log.Printf("Requesting Manufacturer API URL: %s", manufAPIURL)
-
-	manufResp, err := http.Get(manufAPIURL)
-	if err != nil {
-		log.Printf("Error fetching manufacturer details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-	defer manufResp.Body.Close()
-
-	if manufResp.StatusCode != http.StatusOK {
-		log.Printf("Manufacturer API returned non-OK status: %s", manufResp.Status)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-
-	manufData, err := ioutil.ReadAll(manufResp.Body)
-	if err != nil {
-		log.Printf("Error reading manufacturer details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
-	}
-
 	var manufacturer Manufacturer
-	if err := json.Unmarshal(manufData, &manufacturer); err != nil {
-		log.Printf("Error unmarshaling manufacturer details: %v", err)
-		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
-		return
+
+	for i := 0; i < 2; i++ {
+		select {
+		case fetchedCar := <-carChan:
+			car = fetchedCar
+		case fetchedManufacturer := <-manufChan:
+			manufacturer = fetchedManufacturer
+		case err := <-errChan:
+			log.Printf("Error occurred: %v", err)
+			http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	log.Printf("Fetched car details: %+v", car)
-	log.Printf("Fetched manufacturer details: %+v", manufacturer)
-
-	// Combine car and manufacturer details
 	carDetail := CarDetail{
 		Car:          car,
 		Manufacturer: manufacturer,
 	}
 
-	// Parse the template
 	tmplPath := filepath.Join("templates", "carDetail.html")
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
@@ -247,11 +213,77 @@ func CarDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Execute the template
 	if err := tmpl.Execute(w, carDetail); err != nil {
 		log.Printf("Error executing template %s: %v", tmplPath, err)
 		http.Error(w, "Sorry, something went wrong on our end. Please try again later.", http.StatusInternalServerError)
 	}
+}
+
+// fetchCarDetailAsync fetches car detail asynchronously
+func fetchCarDetailAsync(carID string, carChan chan Car, errChan chan error) {
+	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
+	resp, err := http.Get(carAPIURL)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to fetch car details: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errChan <- fmt.Errorf("Car API returned an error: %s", resp.Status)
+		return
+	}
+
+	var car Car
+	if err := json.NewDecoder(resp.Body).Decode(&car); err != nil {
+		errChan <- fmt.Errorf("failed to decode car details: %v", err)
+		return
+	}
+
+	carChan <- car
+}
+
+// fetchManufacturerDetailAsync fetches manufacturer detail asynchronously
+func fetchManufacturerDetailAsync(carID string, manufChan chan Manufacturer, errChan chan error) {
+	carAPIURL := fmt.Sprintf("http://localhost:3000/api/models/%s", carID)
+	carResp, err := http.Get(carAPIURL)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to fetch car details: %v", err)
+		return
+	}
+	defer carResp.Body.Close()
+
+	if carResp.StatusCode != http.StatusOK {
+		errChan <- fmt.Errorf("Car API returned an error: %s", carResp.Status)
+		return
+	}
+
+	var car Car
+	if err := json.NewDecoder(carResp.Body).Decode(&car); err != nil {
+		errChan <- fmt.Errorf("failed to decode car details: %v", err)
+		return
+	}
+
+	manufAPIURL := fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", car.ManufacturerID)
+	resp, err := http.Get(manufAPIURL)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to fetch manufacturer details: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errChan <- fmt.Errorf("Manufacturer API returned an error: %s", resp.Status)
+		return
+	}
+
+	var manufacturer Manufacturer
+	if err := json.NewDecoder(resp.Body).Decode(&manufacturer); err != nil {
+		errChan <- fmt.Errorf("failed to decode manufacturer details: %v", err)
+		return
+	}
+
+	manufChan <- manufacturer
 }
 
 func AdvancedFiltersHandler(w http.ResponseWriter, r *http.Request) {
@@ -265,7 +297,6 @@ func ComparisonsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetManufacturerName(manufacturerID int) (string, error) {
-	// Make a request to the API endpoint to fetch manufacturers
 	resp, err := http.Get(fmt.Sprintf("http://localhost:3000/api/manufacturers/%d", manufacturerID))
 	if err != nil {
 		return "", err
@@ -276,7 +307,6 @@ func GetManufacturerName(manufacturerID int) (string, error) {
 		return "", fmt.Errorf("API returned an error: %s", resp.Status)
 	}
 
-	// Decode JSON response
 	var manufacturer struct {
 		Name string `json:"name"`
 	}

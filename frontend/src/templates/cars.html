@@ -2,46 +2,51 @@
 <html lang="en">
 
 <head>
-    <!-- Head content -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Viewer</title>
     <link rel="stylesheet" href="/src/static/styles.css">
     <style>
-       body {
-            background-color: #e1dfe2; /* Light purple background */
-            color: #000; /* Text color */
+        body {
+            background-color: #e1dfe2;
+            color: #000;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        /* Flex container for header */
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px; /* Add some spacing between header and grid */
+            margin-bottom: 20px;
         }
 
-        /* Style for header link */
         .header-container h1 a {
-            text-decoration: none; /* Remove underline */
+            text-decoration: none;
             color: black;
         }
 
-        /* Style for card layout */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Ensure 5 columns */
-            grid-gap: 10px; /* Adjust the gap between cards */
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 20px;
         }
 
         .card {
+            position: relative;
             border: 1px solid #ccc;
             border-radius: 1rem;
             padding: 10px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
-            background-color: #f8f7ee; /* White background for cards */
+            background-color: #f8f7ee;
+        }
+
+        .card:hover{
+            background-color: #f1eff5;
         }
 
         .card img {
@@ -54,7 +59,12 @@
             padding: 10px;
         }
 
-        /* Style for form */
+        .compare-checkbox {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+
         form {
             display: flex;
             align-items: center;
@@ -73,7 +83,7 @@
             padding: 5px 10px;
             border: none;
             border-radius: 3px;
-            background-color:#6a676e;
+            background-color: #6a676e;
             color: white;
             cursor: pointer;
         }
@@ -88,29 +98,40 @@
         }
 
         .home {
-            margin-top: 150px;
-            align-items: center;
-            justify-content: center;
+            margin-top: 50px;
             display: flex;
+            justify-content: center;
         }
 
-        .compare-checkbox {
-            margin-top: 10px;
+        .compare-button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            margin-top: 20px;
         }
 
+        .compare-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #6a676e;
+            color: white;
+            cursor: pointer;
+        }
+
+        .compare-button:hover {
+            background-color: #3700b3;
+        }
     </style>
 </head>
 
 <body>
     <div class="header-container">
-        <!-- Cars heading with link -->
         <h1><a href="/cars">Cars</a></h1>
-        <!-- Search form -->
         <form action="/cars" method="GET">
             <input type="text" name="search" placeholder="Search by car names...">
             <select name="manufacturer">
                 <option value="">All Manufacturers</option>
-                <!-- Add options dynamically using Go template -->
                 {{range .Manufacturers}}
                 <option value="{{.ID}}">{{.Name}}</option>
                 {{end}}
@@ -121,7 +142,6 @@
 
     <form id="compareForm" action="/compare" method="GET">
         <div class="grid-container">
-            <!-- Display all cars -->
             {{range .Cars}}
             <div class="card">
                 <a href="/cars/{{.ID}}">
@@ -129,7 +149,6 @@
                     <div class="card-content">
                         <h3>{{.Name}}</h3>
                         <p>{{.Year}}</p>
-                        <!-- Add checkbox for comparison -->
                         <input type="checkbox" class="compare-checkbox" name="ids" value="{{.ID}}">
                     </div>
                 </a>
@@ -138,13 +157,15 @@
             <p>No cars available.</p>
             {{end}}
         </div>
-        <!-- Button to submit selected cars for comparison -->
-        <button type="submit">Compare Selected Cars</button>
+
+        <div class="compare-button-container">
+            <button type="submit" class="compare-button">Compare Selected Cars</button>
+            <p id="error-msg" style="color: red; display: none;">Select at least two cars to compare</p>
+        </div>
     </form>
 
-    <br>
     <div class="home">
-        <a href="http://localhost:8080/">Return to Home page</a>
+        <a href="/">Return to Home page</a>
     </div>
 </body>
 

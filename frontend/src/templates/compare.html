@@ -7,6 +7,7 @@
         /* Add some basic styling for better appearance */
         body {
             font-family: Arial, sans-serif;
+             background-color: #e1dfe2;
         }
         .car-comparison {
             display: flex;
@@ -17,7 +18,22 @@
             margin: 10px;
             padding: 10px;
             border: 1px solid #ccc;
+            background-color: #f8f7ee;
+            border-radius: 1rem;
         }
+
+        .car-comparison > div:hover{
+            background-color: #f1eff5;
+        }
+        
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 100px;
+            color: #07050a;
+        }
+
     </style>
 </head>
 <body>
@@ -35,6 +51,12 @@
             <img src="/static/homePageImg/{{.Image}}" alt="{{.Name}}" width="200">
         </div>
         {{end}}
+
+    
+    
     </div>
+        <div class="cars">
+            <a href="/cars">Return to Cars page</a>
+        </div>
 </body>
 </html>

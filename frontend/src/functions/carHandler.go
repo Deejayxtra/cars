@@ -139,8 +139,8 @@ func CarHandler(w http.ResponseWriter, r *http.Request) {
 // ComparisonsHandler handles the comparison of cars
 func ComparisonsHandler(w http.ResponseWriter, r *http.Request) {
 	carIDs := r.URL.Query()["ids"] // Assume car IDs are passed as query parameters like /compare?ids=1,2,3
-	if len(carIDs) == 0 {
-		http.Error(w, "No car IDs provided for comparison", http.StatusBadRequest)
+	if len(carIDs) < 2 {
+		http.Error(w, "Please select at least two cars for comparison", http.StatusSeeOther)
 		return
 	}
 
